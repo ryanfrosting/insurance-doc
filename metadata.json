@@ -1,0 +1,6 @@
+{
+  "name": "Canada Auto Insurance Generator",
+  "description": "Pixel-perfect 1:1 Canada Motor Vehicle Liability Insurance Card and TD Temporary Automobile Liability Insurance Certificate Generator with PDF export, watermark, and form controls.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
