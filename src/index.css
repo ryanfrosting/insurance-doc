@@ -20,3 +20,7 @@
     max-width: 100% !important;
   }
 }
+-e 
+.pb-safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 16px); }
+-e 
+body { -webkit-tap-highlight-color: transparent; }

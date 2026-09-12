@@ -1,24 +1,16 @@
 import React from 'react';
 import { InsuranceCardData } from '../types';
-import { PRESETS, generateRandomInsuranceData } from '../data/presets';
-import { Sparkles, Dices, Shield, RefreshCw, Calendar } from 'lucide-react';
+import { generateRandomInsuranceData } from '../data/presets';
+import { Calendar } from "lucide-react";
 
 interface FormControlsProps {
   data: InsuranceCardData;
   onChange: (newData: InsuranceCardData) => void;
-  showWatermark: boolean;
-  onToggleWatermark: (val: boolean) => void;
-  watermarkOpacity: number;
-  onChangeWatermarkOpacity: (val: number) => void;
 }
 
 export const FormControls: React.FC<FormControlsProps> = ({
   data,
   onChange,
-  showWatermark,
-  onToggleWatermark,
-  watermarkOpacity,
-  onChangeWatermarkOpacity,
 }) => {
   const handleFieldChange = (field: keyof InsuranceCardData, val: string) => {
     onChange({
@@ -27,14 +19,7 @@ export const FormControls: React.FC<FormControlsProps> = ({
     });
   };
 
-  const handleApplyPreset = (presetData: InsuranceCardData) => {
-    onChange({ ...presetData });
-  };
 
-  const handleRandomize = () => {
-    const randomData = generateRandomInsuranceData();
-    onChange(randomData);
-  };
 
   const setTermDuration = (months: number) => {
     // Attempt parsing current effective date DD MM YYYY
@@ -59,84 +44,6 @@ export const FormControls: React.FC<FormControlsProps> = ({
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-6">
-      {/* Autofill & Presets Header */}
-      <div>
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#008a00]" />
-            <h3 className="font-bold text-gray-900 text-sm tracking-tight">Form Presets &amp; Auto-Generation</h3>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleRandomize}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold transition-colors border border-emerald-300 cursor-pointer shadow-2xs"
-              title="Generate fresh Edmonton, AB temporary liability certificate data"
-            >
-              <Dices className="w-3.5 h-3.5 text-[#008a00]" />
-              Generate Edmonton Data
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {PRESETS.map((preset) => {
-            const isSelected = data.insuredName === preset.data.insuredName;
-            return (
-              <button
-                key={preset.id}
-                type="button"
-                onClick={() => handleApplyPreset(preset.data)}
-                className={`p-2 text-left rounded-lg border text-xs transition-all cursor-pointer ${
-                  isSelected
-                    ? 'border-emerald-600 bg-emerald-50/70 ring-1 ring-emerald-600'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                <div className="font-semibold text-gray-900 truncate">{preset.label}</div>
-                <div className="text-[10px] text-gray-500 truncate mt-0.5">{preset.description}</div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Watermark Security Controls */}
-      <div className="p-3.5 bg-pink-50/50 rounded-lg border border-pink-100 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-pink-700" />
-            <span className="text-xs font-bold text-gray-900">Canadian Provincial Shield Watermark</span>
-          </div>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showWatermark}
-              onChange={(e) => onToggleWatermark(e.target.checked)}
-              className="sr-only peer"
-            />
-            <div className="w-9 h-5 bg-gray-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-pink-600"></div>
-          </label>
-        </div>
-
-        {showWatermark && (
-          <div className="flex items-center gap-3 pt-1">
-            <span className="text-[11px] text-gray-600 font-medium shrink-0">Shield Opacity:</span>
-            <input
-              type="range"
-              min="0.05"
-              max="0.45"
-              step="0.02"
-              value={watermarkOpacity}
-              onChange={(e) => onChangeWatermarkOpacity(parseFloat(e.target.value))}
-              className="w-full accent-pink-600 cursor-pointer h-1.5 bg-pink-200 rounded-lg"
-            />
-            <span className="text-xs font-mono font-semibold text-pink-900 w-10 text-right">
-              {Math.round(watermarkOpacity * 100)}%
-            </span>
-          </div>
-        )}
-      </div>
 
       {/* Form Fields Accordion / Grid */}
       <div className="space-y-4">
@@ -148,17 +55,17 @@ export const FormControls: React.FC<FormControlsProps> = ({
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
-              <label className="block text-[11px] font-medium text-gray-600 mb-1">Full Legal Name</label>
+              <label className="block text-xs sm:text-[11px] font-medium text-gray-600 mb-1">Full Legal Name</label>
               <input
                 type="text"
                 value={data.insuredName}
                 onChange={(e) => handleFieldChange('insuredName', e.target.value.toUpperCase())}
                 placeholder="e.g. PHILIP OROZUWA"
-                className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-md border border-gray-300 focus:border-pink-600 focus:ring-1 focus:ring-pink-600 outline-hidden uppercase"
+                className="w-full text-base sm:text-xs font-semibold px-3 py-2.5 sm:px-2.5 sm:py-1.5 rounded-md border border-gray-300 focus:border-pink-600 focus:ring-1 focus:ring-pink-600 outline-hidden uppercase"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-gray-600 mb-1">Street Address</label>
+              <label className="block text-xs sm:text-[11px] font-medium text-gray-600 mb-1">Street Address</label>
               <input
                 type="text"
                 value={data.insuredAddress}
@@ -168,7 +75,7 @@ export const FormControls: React.FC<FormControlsProps> = ({
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-[11px] font-medium text-gray-600 mb-1">City, Province, Postal Code</label>
+              <label className="block text-xs sm:text-[11px] font-medium text-gray-600 mb-1">City, Province, Postal Code</label>
               <input
                 type="text"
                 value={data.insuredCityProvPostal}
@@ -206,7 +113,7 @@ export const FormControls: React.FC<FormControlsProps> = ({
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <div>
-              <label className="block text-[11px] font-medium text-gray-600 mb-1">
+              <label className="block text-xs sm:text-[11px] font-medium text-gray-600 mb-1">
                 Effective Date (D M Y)
               </label>
               <input
@@ -218,7 +125,7 @@ export const FormControls: React.FC<FormControlsProps> = ({
               />
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-gray-600 mb-1">
+              <label className="block text-xs sm:text-[11px] font-medium text-gray-600 mb-1">
                 Expiry Date (D M Y)
               </label>
               <input
@@ -230,7 +137,7 @@ export const FormControls: React.FC<FormControlsProps> = ({
               />
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-gray-600 mb-1">
+              <label className="block text-xs sm:text-[11px] font-medium text-gray-600 mb-1">
                 Policy Number
               </label>
               <input
@@ -251,17 +158,17 @@ export const FormControls: React.FC<FormControlsProps> = ({
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <div>
-              <label className="block text-[11px] font-medium text-gray-600 mb-1">Year &amp; Make</label>
+              <label className="block text-xs sm:text-[11px] font-medium text-gray-600 mb-1">Year &amp; Make</label>
               <input
                 type="text"
                 value={data.vehicleYearMake}
                 onChange={(e) => handleFieldChange('vehicleYearMake', e.target.value.toUpperCase())}
                 placeholder="e.g. 2024 JAGUAR"
-                className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-md border border-gray-300 focus:border-pink-600 focus:ring-1 focus:ring-pink-600 outline-hidden uppercase"
+                className="w-full text-base sm:text-xs font-semibold px-3 py-2.5 sm:px-2.5 sm:py-1.5 rounded-md border border-gray-300 focus:border-pink-600 focus:ring-1 focus:ring-pink-600 outline-hidden uppercase"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-gray-600 mb-1">VIN / Serial Number</label>
+              <label className="block text-xs sm:text-[11px] font-medium text-gray-600 mb-1">VIN / Serial Number</label>
               <input
                 type="text"
                 value={data.vehicleVin}
@@ -271,13 +178,13 @@ export const FormControls: React.FC<FormControlsProps> = ({
               />
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-gray-600 mb-1">Broker / Courtier</label>
+              <label className="block text-xs sm:text-[11px] font-medium text-gray-600 mb-1">Broker / Courtier</label>
               <input
                 type="text"
                 value={data.broker}
                 onChange={(e) => handleFieldChange('broker', e.target.value.toUpperCase())}
                 placeholder="e.g. SUREXDIRECT COM LTD."
-                className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-md border border-gray-300 focus:border-pink-600 focus:ring-1 focus:ring-pink-600 outline-hidden uppercase"
+                className="w-full text-base sm:text-xs font-semibold px-3 py-2.5 sm:px-2.5 sm:py-1.5 rounded-md border border-gray-300 focus:border-pink-600 focus:ring-1 focus:ring-pink-600 outline-hidden uppercase"
               />
             </div>
           </div>
@@ -290,7 +197,7 @@ export const FormControls: React.FC<FormControlsProps> = ({
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
-              <label className="block text-[11px] font-medium text-gray-600 mb-1">Company Name (EN)</label>
+              <label className="block text-xs sm:text-[11px] font-medium text-gray-600 mb-1">Company Name (EN)</label>
               <input
                 type="text"
                 value={data.companyName}
@@ -299,7 +206,7 @@ export const FormControls: React.FC<FormControlsProps> = ({
               />
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-gray-600 mb-1">Company Name (FR)</label>
+              <label className="block text-xs sm:text-[11px] font-medium text-gray-600 mb-1">Company Name (FR)</label>
               <input
                 type="text"
                 value={data.companyNameFr}
@@ -308,7 +215,7 @@ export const FormControls: React.FC<FormControlsProps> = ({
               />
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-gray-600 mb-1">Street Address</label>
+              <label className="block text-xs sm:text-[11px] font-medium text-gray-600 mb-1">Street Address</label>
               <input
                 type="text"
                 value={data.companyAddress}
@@ -317,7 +224,7 @@ export const FormControls: React.FC<FormControlsProps> = ({
               />
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-gray-600 mb-1">City, Prov, Postal Code</label>
+              <label className="block text-xs sm:text-[11px] font-medium text-gray-600 mb-1">City, Prov, Postal Code</label>
               <input
                 type="text"
                 value={data.companyCityProvPostal}

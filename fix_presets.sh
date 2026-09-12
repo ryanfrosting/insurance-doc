@@ -1,3 +1,5 @@
+#!/bin/bash
+cat << 'INNER_EOF' > src/data/presets.ts
 import { InsuranceCardData } from '../types';
 
 const RANDOM_NAMES = [
@@ -95,3 +97,4 @@ export function generateRandomInsuranceData(): InsuranceCardData {
     formDateCode: '20170101',
   };
 }
+INNER_EOF

@@ -98,37 +98,60 @@ export const TdTemporarySheet: React.FC<TdTemporarySheetProps> = ({
       {showWatermark && <ShieldWatermark opacity={watermarkOpacity} />}
 
       <div className="td-card-row td-agency-row">
-        <div className="td-side-label">
-          <span>AGENCY</span>
-          <span>AGENCE</span>
+        <div className="w-[18px] shrink-0 border-r-[1.5px] border-black flex items-center justify-center bg-white">
+          <div className="flex flex-row items-center justify-center gap-[2px] select-none h-full py-0.5">
+            <span 
+              className="text-[6px] font-bold text-black tracking-tight leading-none whitespace-nowrap" 
+              style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+            >
+              AGENCY
+            </span>
+            <span 
+              className="text-[6px] font-bold text-black tracking-tight leading-none whitespace-nowrap" 
+              style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+            >
+              AGENCE
+            </span>
+          </div>
         </div>
         <div className="td-card-content td-agency-content">
           {data.broker ? (
             data.broker.split('\n').map((line, idx) => (
-              <div key={idx} style={{ lineHeight: '1.2' }}>
+              <div key={idx} className="text-black font-normal leading-[1.2]">
                 {line}
               </div>
             ))
           ) : (
             <>
-              <div style={{ lineHeight: '1.2' }}>TD Insurance Direct Agency Inc.</div>
-              <div style={{ lineHeight: '1.2' }}>101 McNabb Street, 2nd Floor</div>
-              <div style={{ lineHeight: '1.2' }}>Markham, ON L3R 4H8</div>
-              <div style={{ lineHeight: '1.2' }}>1-800-268-8955</div>
+              <div className="text-black font-normal leading-[1.2]">TD Insurance Direct Agency Inc.</div>
+              <div className="text-black leading-[1.2]">101 McNabb Street, 2nd Floor, Markham, ON L3R 4H8</div>
+              <div className="text-black leading-[1.2]">1-800-268-8955</div>
             </>
           )}
         </div>
       </div>
 
       <div className="td-card-row td-insured-row">
-        <div className="td-side-label">
-          <span>INSURED</span>
-          <span>ASSURÉ-E</span>
+        <div className="w-[18px] shrink-0 border-r-[1.5px] border-black flex items-center justify-center bg-white">
+          <div className="flex flex-row items-center justify-center gap-[2px] select-none h-full py-0.5">
+            <span 
+              className="text-[6px] font-bold text-black tracking-tight leading-none whitespace-nowrap" 
+              style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+            >
+              INSURED
+            </span>
+            <span 
+              className="text-[6px] font-bold text-black tracking-tight leading-none whitespace-nowrap" 
+              style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+            >
+              ASSURÉ-E
+            </span>
+          </div>
         </div>
         <div className="td-card-content td-insured-content">
-          <div style={{ lineHeight: '1.25' }}>{data.insuredName || 'Michael Kaftan'}</div>
-          <div style={{ lineHeight: '1.25' }}>{data.insuredAddress || '314 Grandin Villge'}</div>
-          <div style={{ lineHeight: '1.25' }}>{data.insuredCityProvPostal || 'St. Albert AB T8N 2R6'}</div>
+          <div className="text-black font-normal leading-[1.25]">{data.insuredName || 'Michael Kaftan'}</div>
+          <div className="text-black leading-[1.25]">{data.insuredAddress || '314 Grandin Villge'}</div>
+          <div className="text-black leading-[1.25]">{data.insuredCityProvPostal || 'St. Albert AB T8N 2R6'}</div>
         </div>
       </div>
 

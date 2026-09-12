@@ -2,14 +2,13 @@ import React, { useState, useRef } from 'react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { InsuranceCardData, SheetViewMode, EightSquarePattern } from './types';
-import { PRESET_EXACT_CLONE } from './data/presets';
+import { generateRandomInsuranceData } from './data/presets';
 import { SheetLayout } from './components/SheetLayout';
 import { InsuranceDocClone } from './components/InsuranceDocClone';
 import { FormControls } from './components/FormControls';
 import { EmailModal } from './components/EmailModal';
 import { sanitizeClonedDocForHtml2Canvas } from './utils/html2canvasSanitizer';
 import { 
-  Download, 
   Mail, 
   Printer, 
   ShieldCheck, 
@@ -19,13 +18,14 @@ import {
   CheckCircle2, 
   FileDown, 
   Info,
-  Copy,
   Grid,
-  FileText
+  FileText,
+  Sliders,
+  Send
 } from 'lucide-react';
 
 export default function App() {
-  const [data, setData] = useState<InsuranceCardData>(PRESET_EXACT_CLONE);
+  const [data, setData] = useState<InsuranceCardData>(generateRandomInsuranceData());
   // Default to td-temporary (1-for-1 Clone) as requested by user
   const [viewMode, setViewMode] = useState<SheetViewMode>('td-temporary');
   const [tdPage, setTdPage] = useState<1 | 2>(1);
@@ -36,8 +36,8 @@ export default function App() {
     'front', 'front',
     'back', 'back',
   ]);
-  const [showWatermark, setShowWatermark] = useState<boolean>(false);
-  const [watermarkOpacity, setWatermarkOpacity] = useState<number>(0.20);
+  const showWatermark = false;
+  const watermarkOpacity = 0.20;
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -366,373 +366,97 @@ export default function App() {
       )}
 
       {/* Top Application Bar (Hidden in Print) */}
-      <header className="no-print bg-white border-b border-gray-200 sticky top-0 z-40 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-          {/* Logo & Title */}
-          <div className="flex items-center gap-3">
-            {viewMode === 'td-temporary' ? (
-              <img 
-                alt="Toronto-Dominion Bank - Wikipedia" 
-                id="dimg_LbmkasbnEtCj0PEPtvzn8Aw_27_navbar" 
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcCuug9R4EhZdxrVE3Zd9khLazEVHCK6T8FFnQIYOYeg&s=10" 
-                className="w-9 h-9 rounded-lg object-contain shadow-xs"
-                crossOrigin="anonymous"
-              />
-            ) : (
-              <div className="w-9 h-9 rounded-xl bg-pink-600 text-white flex items-center justify-center shadow-xs font-bold transition-colors">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-            )}
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-gray-900 leading-tight">
-                  {viewMode === 'td-temporary' ? 'TD Temporary Automobile Liability Insurance Card' : 'Canada Motor Vehicle Liability Insurance Card'}
-                </h1>
-                <span className={`${viewMode === 'td-temporary' ? 'bg-[#008a00]' : 'bg-pink-600'} text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider`}>
-                  {viewMode === 'td-temporary' ? '1:1 PDF Clone' : viewMode === 'eight-squares' ? '8 Squares' : `${viewMode.toUpperCase()}`}
-                </span>
-              </div>
-              <p className="text-xs text-gray-500">
-                {viewMode === 'td-temporary' 
-                  ? 'Official 1-for-1 Pixel-Perfect Clone with Multi-Page PDF Export' 
-                  : 'Identical Size & Placement Squares with Canadian Shield Watermark & PDF Export'}
-              </p>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* View Mode Selector */}
-            <div className="flex items-center bg-gray-100 p-1 rounded-xl border border-gray-200 text-xs">
-              <button
-                type="button"
-                onClick={() => setViewMode('td-temporary')}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
-                  viewMode === 'td-temporary'
-                    ? 'bg-white text-gray-900 shadow-xs font-semibold'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-                title="TD Temporary Card 1:1 Clone"
-              >
-                <FileText className="w-3.5 h-3.5 text-[#008a00]" />
-                <span className="font-semibold">TD Temp Clone</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setViewMode('eight-squares')}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
-                  viewMode === 'eight-squares'
-                    ? 'bg-white text-gray-900 shadow-xs font-semibold'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-                title="8 Identical Squares on Full Page (2x4)"
-              >
-                <Grid className="w-3.5 h-3.5 text-pink-600" />
-                <span>8 Squares</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setViewMode('four-squares')}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
-                  viewMode === 'four-squares'
-                    ? 'bg-white text-gray-900 shadow-xs font-semibold'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-                title="4 Squares (2x2)"
-              >
-                <LayoutGrid className="w-3.5 h-3.5 text-pink-600" />
-                <span className="hidden sm:inline">4 Squares</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setViewMode('front-back')}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
-                  viewMode === 'front-back'
-                    ? 'bg-white text-gray-900 shadow-xs font-semibold'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-                title="Front & Back Pair"
-              >
-                <Layers className="w-3.5 h-3.5 text-pink-600" />
-                <span className="hidden md:inline">Front &amp; Back</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setViewMode('single-card')}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
-                  viewMode === 'single-card'
-                    ? 'bg-white text-gray-900 shadow-xs font-semibold'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-                title="Single Wallet Pink Slip"
-              >
-                <CreditCard className="w-3.5 h-3.5 text-pink-600" />
-                <span className="hidden md:inline">1 Card</span>
-              </button>
-            </div>
-
-            {/* Email Compatible Button */}
-            <button
-              type="button"
-              onClick={() => setIsEmailModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 hover:bg-black active:bg-gray-800 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-            >
-              <Mail className="w-3.5 h-3.5 text-emerald-300" />
-              <span>Email Ready</span>
-            </button>
-
-            {/* Download PDF Button */}
-            <button
-              type="button"
-              onClick={handleDownloadPdf}
-              disabled={isGenerating}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 ${viewMode === 'td-temporary' ? 'bg-[#008a00] hover:bg-[#007000]' : 'bg-pink-600 hover:bg-pink-700'} active:opacity-90 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50`}
-            >
-              <FileDown className="w-3.5 h-3.5" />
-              <span>{isGenerating ? 'Generating...' : 'Download PDF'}</span>
-            </button>
-
-            {/* Print Button */}
-            <button
-              type="button"
-              onClick={handlePrint}
-              className="flex items-center gap-1.5 p-2 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
-              title="Print Sheet"
-            >
-              <Printer className="w-4 h-4" />
-            </button>
-          </div>
+      <header className="no-print fixed top-0 left-0 right-0 h-14 bg-white/95 backdrop-blur-md border-b border-gray-200 z-50 flex items-center justify-between px-4 shadow-sm">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-6 h-6 text-[#008a00]" />
+          <h1 className="text-lg font-extrabold text-gray-900 tracking-tight leading-none">Auto Insurance</h1>
+        </div>
+        
+        {/* Compact Right Controls */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsBlank(!isBlank)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-colors cursor-pointer border ${
+              isBlank ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-gray-100 text-gray-600 border-transparent hover:bg-gray-200'
+            }`}
+          >
+            <Grid className="w-3.5 h-3.5" />
+            <span>Blank</span>
+          </button>
         </div>
       </header>
 
-      {/* Main Workspace Layout */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {/* Main Content (Mobile Optimized) */}
+      <main className="flex-1 w-full max-w-md mx-auto pt-16 pb-24 px-4 space-y-4">
         {/* Left Column: Form Controls & Presets (no-print) */}
-        <div className="no-print lg:col-span-5 space-y-4">
+        <div className="no-print space-y-4">
           {/* TD Temporary Mode Info Box */}
           {viewMode === 'td-temporary' && (
-            <div className="bg-emerald-50/80 border border-emerald-200 rounded-xl p-3.5 text-xs text-emerald-950 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-bold flex items-center gap-1.5 text-[13px] text-emerald-900">
-                  <FileText className="w-4 h-4 text-[#008a00]" />
-                  TD Temporary Liability Certificate (1:1 Clone)
-                </span>
-                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
-                  2-Page Document
-                </span>
-              </div>
-              <p className="text-[11px] text-emerald-800 leading-relaxed">
-                Contains the official TD Insurance / Meloche Monnex header, the 3 dual card certificate slots on Page 1, and the complete policyholder terms &amp; guidelines on Page 2.
-              </p>
-              {/* Page Selector Tabs */}
-              <div className="flex items-center gap-2 pt-1">
-                <span className="font-semibold text-[11px] text-emerald-900">Preview Page:</span>
-                <div className="flex bg-emerald-100/70 p-0.5 rounded-lg border border-emerald-300">
-                  <button
-                    type="button"
-                    onClick={() => setTdPage(1)}
-                    className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
-                      tdPage === 1 
-                        ? 'bg-white text-emerald-950 shadow-xs' 
-                        : 'text-emerald-700 hover:text-emerald-900'
-                    }`}
-                  >
-                    Page 1 (Cards Sheet)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTdPage(2)}
-                    className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
-                      tdPage === 2 
-                        ? 'bg-white text-emerald-950 shadow-xs' 
-                        : 'text-emerald-700 hover:text-emerald-900'
-                    }`}
-                  >
-                    Page 2 (Guidelines)
-                  </button>
+            <div className="bg-[#008a00]/10 border border-[#008a00]/20 rounded-xl p-3.5 text-xs text-gray-900 space-y-1 shadow-sm">
+              <div className="flex items-start gap-2">
+                <Info className="w-4 h-4 text-[#008a00] shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold block mb-0.5 text-[#008a00]">TD Certificate Generator</span>
+                  Configured for fast PDF deployment.
                 </div>
               </div>
             </div>
           )}
 
           {/* 8-Squares Pattern Configuration */}
-          {viewMode === 'eight-squares' && (
-            <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
-                  <Grid className="w-4 h-4 text-pink-600" />
-                  8 Identical Squares Layout
-                </span>
-                <span className="text-[10px] text-gray-500 font-mono">2 Columns × 4 Rows</span>
-              </div>
-
-              {/* Blank Form Switch inside the configuration */}
-              <div className="flex items-center justify-between bg-pink-50/50 p-2.5 rounded-lg border border-pink-200 text-xs">
-                <div>
-                  <div className="font-bold text-pink-900">Blank Printable Sheet</div>
-                  <div className="text-[10px] text-pink-700 leading-tight">Empty driver/vehicle lines</div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsBlank(!isBlank)}
-                  className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ring-2 ring-pink-500/20 ${
-                    isBlank ? 'bg-pink-600' : 'bg-gray-300'
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
-                    isBlank ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                  />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 gap-1.5 text-xs">
-                <button
-                  type="button"
-                  onClick={() => handlePatternChange('standard')}
-                  className={`px-2.5 py-1.5 rounded-lg border text-left cursor-pointer transition-all ${
-                    eightSquarePattern === 'standard'
-                      ? 'border-pink-600 bg-pink-50 text-pink-900 font-semibold'
-                      : 'border-gray-200 hover:bg-gray-50 text-gray-700'
-                  }`}
-                >
-                  <div className="text-[11px] font-bold">Standard Official Sheet</div>
-                  <div className="text-[9.5px] text-gray-500">4 Front + 4 Back Terms</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePatternChange('all-front')}
-                  className={`px-2.5 py-1.5 rounded-lg border text-left cursor-pointer transition-all ${
-                    eightSquarePattern === 'all-front'
-                      ? 'border-pink-600 bg-pink-50 text-pink-900 font-semibold'
-                      : 'border-gray-200 hover:bg-gray-50 text-gray-700'
-                  }`}
-                >
-                  <div className="text-[11px] font-bold">All 8 Front Cards</div>
-                  <div className="text-[9.5px] text-gray-500">8 Front Certificates</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePatternChange('alternating')}
-                  className={`px-2.5 py-1.5 rounded-lg border text-left cursor-pointer transition-all ${
-                    eightSquarePattern === 'alternating'
-                      ? 'border-pink-600 bg-pink-50 text-pink-900 font-semibold'
-                      : 'border-gray-200 hover:bg-gray-50 text-gray-700'
-                  }`}
-                >
-                  <div className="text-[11px] font-bold">Alternating</div>
-                  <div className="text-[9.5px] text-gray-500">Front, Back, Front, Back...</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePatternChange('all-back')}
-                  className={`px-2.5 py-1.5 rounded-lg border text-left cursor-pointer transition-all ${
-                    eightSquarePattern === 'all-back'
-                      ? 'border-pink-600 bg-pink-50 text-pink-900 font-semibold'
-                      : 'border-gray-200 hover:bg-gray-50 text-gray-700'
-                  }`}
-                >
-                  <div className="text-[11px] font-bold">All 8 Terms Cards</div>
-                  <div className="text-[9.5px] text-gray-500">8 Back Legal Terms</div>
-                </button>
-              </div>
-            </div>
-          )}
+          {/* Removed for mobile app speed */}
 
           <FormControls
             data={data}
             onChange={setData}
-            showWatermark={showWatermark}
-            onToggleWatermark={setShowWatermark}
-            watermarkOpacity={watermarkOpacity}
-            onChangeWatermarkOpacity={setWatermarkOpacity}
           />
-
-          {/* Specs box */}
-          <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-900 flex items-start gap-2.5">
-            <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-            <div className="space-y-1 leading-relaxed">
-              <span className="font-bold">Official Document Specifications:</span>
-              <p className="text-[11px] text-amber-800">
-                Matches the official Canada Inter-Province Motor Vehicle Liability Insurance format with high-resolution Canadian coat-of-arms watermark and calibrated dimensions.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Live Sheet Preview */}
-        <div className="lg:col-span-7 flex flex-col items-center">
-          {/* Preview Bar controls */}
-          <div className="no-print w-full flex items-center justify-between mb-3 text-xs text-gray-500 px-1">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-gray-800">
-                {viewMode === 'td-temporary' ? `Live Preview (Page ${tdPage} of 2):` : 'Live Sheet Preview:'}
-              </span>
-              <span className="text-[11px] bg-white border border-gray-200 px-2 py-0.5 rounded-md font-mono">
-                {isBlank ? 'PRISTINE BLANK STOCK' : `Policy #${data.policyNumber}`}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={handleCopyImage}
-                className="text-pink-700 hover:text-pink-800 font-medium flex items-center gap-1 cursor-pointer"
-                title="Copy high-res image to clipboard"
-              >
-                <Copy className="w-3.5 h-3.5" />
-                <span>Copy Sheet</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleDownloadPdf}
-                className="text-gray-700 hover:text-gray-900 font-medium flex items-center gap-1 cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Download PDF</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Render Sheet Preview */}
-          <div className="w-full flex justify-center overflow-x-auto pb-6">
-            <SheetLayout
-              data={dataToRender}
-              viewMode={viewMode}
-              eightSquarePattern={eightSquarePattern}
-              watermarkOpacity={watermarkOpacity}
-              showWatermark={showWatermark}
-              sheetRef={sheetRef}
-              customCardTypes={customCardTypes}
-              onToggleCardType={handleToggleCardType}
-              tdPage={tdPage}
-            />
-          </div>
         </div>
       </main>
 
-      {/* Hidden Offscreen Pages for TD Temporary Multi-Page PDF Generation */}
+      {/* Mobile App Bottom Navigation Bar */}
+      <div className="no-print fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 px-6 pt-3 pb-safe-bottom min-h-[4.5rem] flex items-center justify-around z-40 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]">
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="flex flex-col items-center gap-1 py-1 px-4 rounded-xl text-emerald-700 font-bold transition-colors cursor-pointer"
+        >
+          <Sliders className="w-5 h-5" />
+          <span className="text-[10px] uppercase tracking-wider">Form</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsEmailModalOpen(true)}
+          className="flex flex-col items-center gap-1 py-2 px-8 rounded-2xl bg-gray-900 text-white shadow-lg active:scale-95 font-bold transition-transform cursor-pointer"
+        >
+          <Send className="w-5 h-5" />
+          <span className="text-[10px] uppercase tracking-wider">Deploy</span>
+        </button>
+      </div>
+
+      {/* Hidden Offscreen Pages for TD Temporary Multi-Page PDF Generation and Sheet Layout */}
       <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', pointerEvents: 'none', opacity: 0 }} aria-hidden="true">
         <div ref={hiddenTdPage1Ref}>
           <InsuranceDocClone
             data={dataToRender}
-            watermarkOpacity={watermarkOpacity}
-            showWatermark={showWatermark}
             page={1}
           />
         </div>
         <div ref={hiddenTdPage2Ref}>
           <InsuranceDocClone
             data={dataToRender}
-            watermarkOpacity={watermarkOpacity}
-            showWatermark={showWatermark}
             page={2}
           />
         </div>
+        <SheetLayout
+          data={dataToRender}
+          viewMode={viewMode}
+          eightSquarePattern={eightSquarePattern}
+          sheetRef={sheetRef}
+          customCardTypes={customCardTypes}
+          onToggleCardType={handleToggleCardType}
+          tdPage={tdPage}
+        />
       </div>
 
       {/* Email Modal Dialog */}

@@ -22,25 +22,14 @@ export const EmailModal: React.FC<EmailModalProps> = ({
   onGenerateAttachment,
 }) => {
   const [recipientEmail, setRecipientEmail] = useState('cjbuck991@gmail.com');
-  const [activeTab, setActiveTab] = useState<'email1' | 'email2' | 'email3' | 'pdf'>('email1');
   const [copiedImage, setCopiedImage] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [sendSuccess, setSendSuccess] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   
-  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [sendingStep, setSendingStep] = useState<string>('');
 
-  useEffect(() => {
-    if (activeTab === 'pdf' && !pdfPreviewUrl && onGenerateAttachment) {
-      setIsGeneratingPdf(true);
-      onGenerateAttachment().then(url => {
-        setPdfPreviewUrl(url);
-        setIsGeneratingPdf(false);
-      });
-    }
-  }, [activeTab, onGenerateAttachment, pdfPreviewUrl]);
 
   if (!isOpen) return null;
 
@@ -486,7 +475,7 @@ TD Insurance
     try {
       // Setup PDF attachment for Email 3
       let base64Data: string | null = null;
-      let pdfUrl = pdfPreviewUrl;
+      let pdfUrl = null;
       
       if (!pdfUrl && onGenerateAttachment) {
         pdfUrl = await onGenerateAttachment();
@@ -541,8 +530,8 @@ TD Insurance
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 max-w-4xl w-full overflow-hidden flex flex-col max-h-[95vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-white sm:bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-white max-w-4xl w-full h-full sm:h-auto overflow-hidden flex flex-col sm:max-h-[95vh] sm:rounded-2xl sm:shadow-2xl sm:border border-transparent sm:border-gray-200">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white relative z-10">
           <div className="flex items-center gap-3">
@@ -618,186 +607,19 @@ TD Insurance
                 <span>Successfully dispatched all 3 emails in sequence to {recipientEmail}!</span>
               </div>
             )}
-
-            {/* Previews */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
-              {/* Tabs */}
-              <div className="flex border-b border-gray-200 bg-gray-50/80">
-                <button
-                  onClick={() => setActiveTab('email1')}
-                  className={`flex-1 py-3 px-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
-                    activeTab === 'email1' 
-                      ? 'bg-white border-b-2 border-pink-600 text-pink-700' 
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 border-b-2 border-transparent'
-                  }`}
-                >
-                  <Mail className="w-3.5 h-3.5 hidden sm:block" />
-                  1: Portal
-                </button>
-                <button
-                  onClick={() => setActiveTab('email2')}
-                  className={`flex-1 py-3 px-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
-                    activeTab === 'email2' 
-                      ? 'bg-white border-b-2 border-pink-600 text-pink-700' 
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 border-b-2 border-transparent'
-                  }`}
-                >
-                  <Mail className="w-3.5 h-3.5 hidden sm:block" />
-                  2: Registration
-                </button>
-                <button
-                  onClick={() => setActiveTab('email3')}
-                  className={`flex-1 py-3 px-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
-                    activeTab === 'email3' 
-                      ? 'bg-white border-b-2 border-pink-600 text-pink-700' 
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 border-b-2 border-transparent'
-                  }`}
-                >
-                  <Mail className="w-3.5 h-3.5 hidden sm:block" />
-                  3: Document Delivery (PDF)
-                </button>
-                <button
-                  onClick={() => setActiveTab('pdf')}
-                  className={`flex-1 py-3 px-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
-                    activeTab === 'pdf' 
-                      ? 'bg-white border-b-2 border-pink-600 text-pink-700' 
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 border-b-2 border-transparent'
-                  }`}
-                >
-                  <ImageIcon className="w-3.5 h-3.5 hidden sm:block" />
-                  PDF Attachment
-                </button>
-              </div>
-
-              {/* Tab Content */}
-              <div className="p-0">
-                {activeTab === 'email1' && (
-                  <div className="flex flex-col md:flex-row h-[500px] divide-y md:divide-y-0 md:divide-x divide-gray-200">
-                    <div className="flex-1 flex flex-col bg-gray-900 overflow-hidden">
-                      <div className="px-3 py-2 bg-gray-800 border-b border-gray-700 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">HTML Source</span>
-                      </div>
-                      <pre className="flex-1 overflow-auto p-4 text-[11px] font-mono leading-relaxed text-pink-300/90 whitespace-pre-wrap break-all">
-                        {tdHtmlTemplate}
-                      </pre>
-                    </div>
-                    <div className="flex-1 flex flex-col bg-slate-50 overflow-hidden">
-                      <div className="px-3 py-2 bg-gray-100 border-b border-gray-200 flex flex-col">
-                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Live Render</span>
-                        <span className="text-[11px] font-medium text-gray-700 truncate">
-                          Subject: New insurance documents will be ready for you in MyInsurance within 24 hours
-                        </span>
-                      </div>
-                      <div className="flex-1 overflow-auto bg-gray-50 border-t border-gray-200">
-                        <div dangerouslySetInnerHTML={{ __html: tdHtmlTemplate }} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'email2' && (
-                  <div className="flex flex-col md:flex-row h-[500px] divide-y md:divide-y-0 md:divide-x divide-gray-200">
-                    <div className="flex-1 flex flex-col bg-gray-900 overflow-hidden">
-                      <div className="px-3 py-2 bg-gray-800 border-b border-gray-700 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">HTML Source</span>
-                      </div>
-                      <pre className="flex-1 overflow-auto p-4 text-[11px] font-mono leading-relaxed text-pink-300/90 whitespace-pre-wrap break-all">
-                        {tdRegistrationHtmlTemplate}
-                      </pre>
-                    </div>
-                    <div className="flex-1 flex flex-col bg-slate-50 overflow-hidden">
-                      <div className="px-3 py-2 bg-gray-100 border-b border-gray-200 flex flex-col">
-                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Live Render</span>
-                        <span className="text-[11px] font-medium text-gray-700 truncate">
-                          Subject: Action Required: Set up your MyInsurance account to access your documents
-                        </span>
-                      </div>
-                      <div className="flex-1 overflow-auto bg-gray-50 border-t border-gray-200">
-                        <div dangerouslySetInnerHTML={{ __html: tdRegistrationHtmlTemplate }} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'email3' && (
-                  <div className="flex flex-col md:flex-row h-[500px] divide-y md:divide-y-0 md:divide-x divide-gray-200">
-                    <div className="flex-1 flex flex-col bg-gray-900 overflow-hidden">
-                      <div className="px-3 py-2 bg-gray-800 border-b border-gray-700 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">HTML Source</span>
-                      </div>
-                      <pre className="flex-1 overflow-auto p-4 text-[11px] font-mono leading-relaxed text-pink-300/90 whitespace-pre-wrap break-all">
-                        {tdDeliveryHtmlTemplate}
-                      </pre>
-                    </div>
-                    <div className="flex-1 flex flex-col bg-slate-50 overflow-hidden">
-                      <div className="px-3 py-2 bg-gray-100 border-b border-gray-200 flex flex-col">
-                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Live Render</span>
-                        <span className="text-[11px] font-medium text-gray-700 truncate">
-                          Subject: {tdDeliverySubject}
-                        </span>
-                      </div>
-                      <div className="flex-1 overflow-auto bg-white border-t border-gray-200 relative p-4">
-                        <div className="mb-4 inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg shadow-2xs">
-                           <FileText className="w-4 h-4 text-emerald-600" />
-                           <span className="text-xs font-semibold text-emerald-900">Attachment: Temporary Automobile Liability Insurance Card.pdf</span>
-                        </div>
-                        <div dangerouslySetInnerHTML={{ __html: tdDeliveryHtmlTemplate }} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'pdf' && (
-                  <div className="flex flex-col h-[500px] bg-gray-200 items-center justify-center p-4">
-                    {isGeneratingPdf ? (
-                      <div className="flex flex-col items-center justify-center gap-3 text-gray-500">
-                        <div className="w-8 h-8 border-4 border-pink-200 border-t-pink-600 rounded-full animate-spin"></div>
-                        <p className="text-sm font-semibold">Generating HD PDF Preview...</p>
-                      </div>
-                    ) : pdfPreviewUrl ? (
-                      <iframe 
-                        src={pdfPreviewUrl} 
-                        className="w-full h-full border border-gray-300 rounded-xl shadow-md bg-white"
-                        title="PDF Preview"
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center gap-2 text-gray-500">
-                        <ImageIcon className="w-8 h-8 opacity-50" />
-                        <p className="text-sm font-medium">PDF preview is generating...</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-100 bg-white flex items-center justify-between gap-3 relative z-10">
           <button
+
             type="button"
             onClick={onClose}
             className="px-6 py-2.5 text-sm font-bold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors cursor-pointer"
           >
             Close
           </button>
-          <div className="flex gap-2">
-            <button
-              onClick={handleCopyImageToClipboard}
-              className="px-5 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-bold rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-2"
-            >
-              {copiedImage ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-              <span>{copiedImage ? 'Copied PNG' : 'Copy Preview (PNG)'}</span>
-            </button>
-            <button
-              onClick={onDownloadPdf}
-              className="px-5 py-2.5 bg-gray-900 hover:bg-black text-white text-sm font-bold rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Download Local PDF
-            </button>
-          </div>
         </div>
       </div>
     </div>

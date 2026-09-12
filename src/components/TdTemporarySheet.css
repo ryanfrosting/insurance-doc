@@ -53,9 +53,14 @@
 }
 
 .td-agency-address {
-  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
   font-size: 11px;
-  line-height: 1.22;
+  line-height: 1.25;
+  margin: 0;
+  padding: 0;
 }
 
 .td-agency-address strong {

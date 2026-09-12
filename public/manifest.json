@@ -1,0 +1,25 @@
+{
+  "id": "/",
+  "name": "Canada Auto Insurance Mobile App",
+  "short_name": "CanadaInsurance",
+  "description": "Pixel-perfect 1:1 Canada Motor Vehicle Liability Insurance Card & TD Temporary Automobile Insurance Certificate Generator.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#008a00",
+  "icons": [
+    {
+      "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcCuug9R4EhZdxrVE3Zd9khLazEVHCK6T8FFnQIYOYeg&s=10",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcCuug9R4EhZdxrVE3Zd9khLazEVHCK6T8FFnQIYOYeg&s=10",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
